@@ -6,7 +6,7 @@ require 'mocha'
 
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 $LOAD_PATH.unshift(File.dirname(__FILE__))
-require 'gmail_xoauth'
+require 'gmail'
 
 # Wanna debug ? Activate the IMAP debug mode, it will show the client/server conversation
 # Net::IMAP.debug = true

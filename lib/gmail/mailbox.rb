@@ -6,7 +6,7 @@ class Object
   end
 end
 
-class Gmail
+module GmailBase
   class Mailbox
     attr_reader :name
 

@@ -1,4 +1,4 @@
-class Gmail
+module GmailBase
   class Message
     def initialize(gmail, mailbox, uid)
       @gmail = gmail
