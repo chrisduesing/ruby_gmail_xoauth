@@ -1,3 +1,6 @@
+pkg
+.rvmrc
+
 ## MAC OS
 .DS_Store
 
@@ -21,3 +24,4 @@ pkg
 
 ## PROJECT::SPECIFIC
 test/valid_credentials.yml
+
