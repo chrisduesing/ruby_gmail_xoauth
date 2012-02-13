@@ -48,7 +48,8 @@ class TestImapXoauthAuthenticator < Test::Unit::TestCase
       )
     end
   end
-  
+
+  # this will fail, even with valid credientials, if the account is not set up for 2 step auth
   def test_2_legged_authenticate_with_valid_credentials
     return unless VALID_CREDENTIALS
     

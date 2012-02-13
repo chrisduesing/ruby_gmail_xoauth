@@ -52,7 +52,7 @@ class TestSmtpXoauthAuthenticator < Test::Unit::TestCase
     smtp.enable_starttls_auto
     
     secret = {
-			:two_legged => true,
+      :two_legged => true,
       :consumer_key => VALID_CREDENTIALS[:consumer_key],
       :consumer_secret => VALID_CREDENTIALS[:consumer_secret],
     }
