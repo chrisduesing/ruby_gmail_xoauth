@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "ruby_gmail_xoauth"
-  s.version = "0.2.2"
+  s.version = "0.3.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Chris Duesing", "BehindLogic", "Nicolas Fouch\u{e9}"]
-  s.date = "2012-02-12"
+  s.date = "2012-02-13"
   s.description = "A Rubyesque interface to Gmail, with all the tools you'll need. Search, read and send multipart emails; archive, mark as read/unread, delete emails; and manage labels."
   s.email = "chris.duesing@gmail.com"
   s.extra_rdoc_files = [
@@ -25,12 +25,15 @@ Gem::Specification.new do |s|
     "Rakefile",
     "VERSION",
     "lib/gmail.rb",
+    "lib/gmail/gmail_base.rb",
     "lib/gmail/imap_xoauth_authenticator.rb",
     "lib/gmail/mailbox.rb",
     "lib/gmail/message.rb",
     "lib/gmail/oauth_string.rb",
     "lib/gmail/smtp_xoauth_authenticator.rb",
+    "lib/gmail_xoauth.rb",
     "lib/smtp_tls.rb",
+    "ruby_gmail_xoauth.gemspec",
     "test/helper.rb",
     "test/test_gmail.rb",
     "test/test_helper.rb",
