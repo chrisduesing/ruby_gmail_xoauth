@@ -1,7 +1,7 @@
 require 'net/imap'
 require 'gmail/gmail_base'
 
-class GmailXOAuth
+class GmailXoauth
   include GmailBase
 
   
