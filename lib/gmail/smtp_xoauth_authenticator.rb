@@ -1,7 +1,7 @@
 require 'net/smtp'
 require 'oauth'
 
-module GmailXoauth
+class GmailXoauth
   module SmtpXoauthAuthenticator
     
     def auth_xoauth(user, secret)

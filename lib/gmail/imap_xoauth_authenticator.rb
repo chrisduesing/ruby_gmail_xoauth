@@ -1,7 +1,7 @@
 require 'net/imap'
 require 'oauth'
 
-module GmailXoauth
+class GmailXoauth
   class ImapXoauthAuthenticator
     
     def process(data)

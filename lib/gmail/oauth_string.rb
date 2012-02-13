@@ -1,4 +1,4 @@
-module GmailXoauth
+class GmailXoauth
   module OauthString
   
   private
