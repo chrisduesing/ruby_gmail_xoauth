@@ -91,6 +91,12 @@ module GmailBase
   end  
 
   def in_mailbox(mailbox, &block)
+    imap.add_response_handler do |resp|
+      if resp.kind_of?(Net::IMAP::UntaggedResponse) and resp.name == "EXISTS"
+        puts "Mailbox now has #{resp.data} messages"
+        @message_count = resp.data
+      end
+    end
     if block_given?
       mailbox_stack << mailbox
       unless @selected == mailbox.name
@@ -110,6 +116,8 @@ module GmailBase
     end
   end
   alias :in_label :in_mailbox
+
+  attr_accessor :message_count
 
   ###########################
   #  Other...
