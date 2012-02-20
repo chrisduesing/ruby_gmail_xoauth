@@ -96,7 +96,7 @@ module GmailBase
       unless @selected == mailbox.name
         imap.select(mailbox.name)
         @selected = mailbox.name
-        @message_count = 1
+        @message_count = imap.status(mailbox.name, ["UIDNEXT"])
       end
       value = block.arity == 1 ? block.call(mailbox) : block.call
       mailbox_stack.pop
