@@ -95,8 +95,10 @@ module GmailBase
       mailbox_stack << mailbox
       unless @selected == mailbox.name
         imap.select(mailbox.name)
+        imap.idle
         @selected = mailbox.name
         @message_count = imap.responses['UIDNEXT'][-1]
+        puts "trying to track down the message count: #{responses['UIDNEXT']}"
       end
       value = block.arity == 1 ? block.call(mailbox) : block.call
       mailbox_stack.pop
