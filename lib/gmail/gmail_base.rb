@@ -91,8 +91,8 @@ module GmailBase
   end  
 
   def in_mailbox(mailbox, &block)
-    puts "in in_mailbox"
     if block_given?
+      puts "in in_mailbox with a block"
       mailbox_stack << mailbox
       unless @selected == mailbox.name
         imap.select(mailbox.name)
