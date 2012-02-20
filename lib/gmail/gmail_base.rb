@@ -91,17 +91,12 @@ module GmailBase
   end  
 
   def in_mailbox(mailbox, &block)
-    imap.add_response_handler do |resp|
-      if resp.kind_of?(Net::IMAP::UntaggedResponse) and resp.name == "EXISTS"
-        puts "Mailbox now has #{resp.data} messages"
-        @message_count = resp.data
-      end
-    end
     if block_given?
       mailbox_stack << mailbox
       unless @selected == mailbox.name
         imap.select(mailbox.name)
         @selected = mailbox.name
+        @message_count = imap.responses['UIDNEXT'][-1]
       end
       value = block.arity == 1 ? block.call(mailbox) : block.call
       mailbox_stack.pop
