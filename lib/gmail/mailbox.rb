@@ -54,6 +54,7 @@ module GmailBase
 
       # puts "Gathering #{(aliases[key] || key).inspect} messages for mailbox '#{name}'..."
       @gmail.in_mailbox(self) do
+        puts "search: #{search} ****************************************************************************************************"
         @gmail.imap.uid_search(search).collect { |uid| messages[uid] ||= Message.new(@gmail, self, uid) }
       end
     end
