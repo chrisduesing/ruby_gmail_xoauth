@@ -96,7 +96,6 @@ module GmailBase
       unless @selected == mailbox.name
         imap.select(mailbox.name)
         @selected = mailbox.name
-        @uid_next = imap.status(mailbox.name, ["UIDNEXT"])["UIDNEXT"]
       end
       value = block.arity == 1 ? block.call(mailbox) : block.call
       mailbox_stack.pop
@@ -111,8 +110,6 @@ module GmailBase
     end
   end
   alias :in_label :in_mailbox
-
-  attr_accessor :uid_next
 
   ###########################
   #  Other...

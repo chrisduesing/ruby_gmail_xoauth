@@ -1,12 +1,11 @@
 module GmailBase
   class Message
-    def initialize(gmail, mailbox, uid, body=nil)
+
+    def initialize(gmail, mailbox, uid, subject=nil)
       @gmail = gmail
       @mailbox = mailbox
       @uid = uid
-      if body
-        @message = Mail.new(body)
-      end
+      @subject = subject
     end
 
     def inspect
@@ -85,30 +84,33 @@ module GmailBase
       move_to('[Gmail]/All Mail')
     end
 
+    # a new message only has a uid, so when listing an inbox full of subjects we don't want to have to download the full headers/body.
+    # this lightens traffic size and serves as a caching mechanism for subjects
     def subject
-      require 'mail'
-      if !@message 
-        request= '(body[header.fields (subject)])'
-        _body = @gmail.in_mailbox(@mailbox) { @gmail.imap.fetch(@uid, request)[0].attr[request] }
-        @message = Mail.new(_body)
-      elsif !@message.subject
+      if !@subject && !@message && !@message.subject
+        require 'mail'
         request= '(body[header.fields (subject)])'
         _body = @gmail.in_mailbox(@mailbox) { @gmail.imap.fetch(@uid, request)[0].attr[request] }
         tmp = Mail.new(_body)
-        @message.subject = tmp.subject
+        @subject = tmp.subject
+      elsif !@subject && @message && @message.subject
+        @subject = @message.subject
       end
-      @message.subject
+      @subject
     end
 
     private
 
     # Parsed MIME message object
     def message
-      require 'mail'
-      request,part = 'RFC822','RFC822'
-      request,part = 'BODY.PEEK[]','BODY[]' if @gmail.peek
-      _body = @gmail.in_mailbox(@mailbox) { @gmail.imap.uid_fetch(uid, request)[0].attr[part] }
-      @message ||= Mail.new(_body)
+      if !@message
+        require 'mail'
+        request,part = 'RFC822','RFC822'
+        request,part = 'BODY.PEEK[]','BODY[]' if @gmail.peek
+        _body = @gmail.in_mailbox(@mailbox) { @gmail.imap.uid_fetch(uid, request)[0].attr[part] }
+        @message = Mail.new(_body)
+      end
+      @message
     end
 
     # Delegate all other methods to the Mail message

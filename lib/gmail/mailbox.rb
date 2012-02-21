@@ -9,10 +9,13 @@ end
 module GmailBase
   class Mailbox
     attr_reader :name
+    attr_accessor :uid_next
 
     def initialize(gmail, name)
       @gmail = gmail
       @name = name
+      @uid_next = imap.status(mailbox.name, ["UIDNEXT"])["UIDNEXT"]
+      prefetch
     end
 
     def inspect
@@ -23,19 +26,13 @@ module GmailBase
       name
     end
 
-    def all
-      @gmail.imap.fetch('1:100 FULL').collect do |response| # #{@gmail.uid_next}
-        uid = response.attr['UID']
-        body = response.attr['BODY']
-        messages[uid] ||= Message.new(@gmail, self, uid, body) 
-      end
-    end
-
-    def uid_search(key_or_opts = :all, opts={})
+    def search(key_or_opts = :all, opts={})
       @gmail.imap.uid_search(search(key_or_opts, opts)).collect { |uid| messages[uid] ||= Message.new(@gmail, self, uid) }
     end
 
-    alias :emails :uid_search
+    def emails
+      messages.values
+    end
 
     # Method: emails
     # Args: [ :all | :unread | :read ]
@@ -82,5 +79,18 @@ module GmailBase
     def messages
       @messages ||= {}
     end
+
+private
+
+    def prefetch
+      # {@gmail.uid_next}
+      @gmail.imap.fetch('1:100 (body[header.fields (subject)])').collect do |response| 
+        uid = response.attr['UID']
+        subject = response.attr['SUBJECT']
+        messages[uid] ||= Message.new(@gmail, self, uid, subject) 
+      end
+      
+    end
+
   end
 end
