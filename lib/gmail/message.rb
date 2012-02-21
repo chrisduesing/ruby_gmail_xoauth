@@ -1,6 +1,6 @@
 module GmailBase
   class Message
-    def initialize(gmail, mailbox, uid, body)
+    def initialize(gmail, mailbox, uid, body=nil)
       @gmail = gmail
       @mailbox = mailbox
       @uid = uid

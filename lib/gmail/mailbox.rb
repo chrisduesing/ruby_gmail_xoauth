@@ -24,7 +24,7 @@ module GmailBase
     end
 
     def all
-      @gmail.imap.fetch('1:100 FULL').collect do |response| ##{@gmail.uid_next}
+      @gmail.imap.fetch('1:100 FULL').collect do |response| # #{@gmail.uid_next}
         uid = response.attr['UID']
         body = response.attr['BODY']
         messages[uid] ||= Message.new(@gmail, self, uid, body) 
