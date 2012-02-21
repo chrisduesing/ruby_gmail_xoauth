@@ -103,9 +103,6 @@ module GmailBase
       # Select previously selected mailbox if there is one
       if mailbox_stack.last
         imap.select(mailbox_stack.last.name)
-        imap.add_response_handler do |resp|
-          puts "Mailbox now has #{resp.data} messages"          
-        end
         @selected = mailbox.name
       end
       return value
