@@ -82,6 +82,21 @@ module GmailBase
       move_to('[Gmail]/All Mail')
     end
 
+    def subject
+      require 'mail'
+      if !@message 
+        request= '(body[header.fields (subject)])'
+        _body = @gmail.in_mailbox(@mailbox) { @gmail.imap.fetch(@uid, request)[0].attr[request] }
+        @message = Mail.new(_body)
+      elsif !@message.subject
+        request= '(body[header.fields (subject)])'
+        _body = @gmail.in_mailbox(@mailbox) { @gmail.imap.fetch(@uid, request)[0].attr[request] }
+        tmp = Mail.new(_body)
+        @message.subject = tmp.subject
+      end
+      @message.subject
+    end
+
     private
 
     # Parsed MIME message object

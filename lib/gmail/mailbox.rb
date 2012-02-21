@@ -23,10 +23,16 @@ module GmailBase
       name
     end
 
+    def uid_search(key_or_opts = :all, opts={})
+      @gmail.imap.uid_search(search(key_or_opts, opts)).collect { |uid| messages[uid] ||= Message.new(@gmail, self, uid) }
+    end
+
+    alias :emails :uid_search
+
     # Method: emails
     # Args: [ :all | :unread | :read ]
     # Opts: {:since => Date.new}
-    def emails(key_or_opts = :all, opts={})
+    def search(key_or_opts = :all, opts={})
       if key_or_opts.is_a?(Hash) && opts.empty?
         search = ['ALL']
         opts = key_or_opts
@@ -55,7 +61,7 @@ module GmailBase
       # puts "Gathering #{(aliases[key] || key).inspect} messages for mailbox '#{name}'..."
       @gmail.in_mailbox(self) do
         puts "search: #{search} ****************************************************************************************************"
-        @gmail.imap.uid_search(search).collect { |uid| messages[uid] ||= Message.new(@gmail, self, uid) }
+        return search
       end
     end
 
