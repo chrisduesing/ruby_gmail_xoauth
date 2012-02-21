@@ -14,8 +14,8 @@ module GmailBase
     def initialize(gmail, name)
       @gmail = gmail
       @name = name
-      @uid_next = imap.status(mailbox.name, ["UIDNEXT"])["UIDNEXT"]
-      prefetch
+      @uid_next = @gmail.imap.status(@name, ["UIDNEXT"])["UIDNEXT"]
+      puts "#{uid_next}"
     end
 
     def inspect
@@ -27,7 +27,8 @@ module GmailBase
     end
 
     def search(key_or_opts = :all, opts={})
-      @gmail.imap.uid_search(search(key_or_opts, opts)).collect { |uid| messages[uid] ||= Message.new(@gmail, self, uid) }
+      puts "about to search"
+      @gmail.imap.uid_search(build_query(key_or_opts, opts)).collect { |uid| messages[uid] ||= Message.new(@gmail, self, uid) }
     end
 
     def emails
@@ -37,9 +38,9 @@ module GmailBase
     # Method: emails
     # Args: [ :all | :unread | :read ]
     # Opts: {:since => Date.new}
-    def search(key_or_opts = :all, opts={})
+    def build_query(key_or_opts = :all, opts={})
       if key_or_opts.is_a?(Hash) && opts.empty?
-        search = ['ALL']
+        query = ['ALL']
         opts = key_or_opts
       elsif key_or_opts.is_a?(Symbol) && opts.is_a?(Hash)
         aliases = {
@@ -47,26 +48,26 @@ module GmailBase
           :unread => ['UNSEEN'],
           :read => ['SEEN']
         }
-        search = aliases[key_or_opts]
+        query = aliases[key_or_opts]
       elsif key_or_opts.is_a?(Array) && opts.empty?
-        search = key_or_opts
+        query = key_or_opts
       else
-        raise ArgumentError, "Couldn't make sense of arguments to #emails - should be an optional hash of options preceded by an optional read-status bit; OR simply an array of parameters to pass directly to the IMAP uid_search call."
+        raise ArgumentError, "Couldn't make sense of arguments to #emails - should be an optional hash of options preceded by an optional read-status bit; OR simply an array of parameters to pass directly to the IMAP uid_query call."
       end
       if !opts.empty?
-        # Support for several search macros
+        # Support for several query macros
         # :before => Date, :on => Date, :since => Date, :from => String, :to => String
-        search.concat ['SINCE', opts[:after].to_imap_date] if opts[:after]
-        search.concat ['BEFORE', opts[:before].to_imap_date] if opts[:before]
-        search.concat ['ON', opts[:on].to_imap_date] if opts[:on]
-        search.concat ['FROM', opts[:from]] if opts[:from]
-        search.concat ['TO', opts[:to]] if opts[:to]
+        query.concat ['SINCE', opts[:after].to_imap_date] if opts[:after]
+        query.concat ['BEFORE', opts[:before].to_imap_date] if opts[:before]
+        query.concat ['ON', opts[:on].to_imap_date] if opts[:on]
+        query.concat ['FROM', opts[:from]] if opts[:from]
+        query.concat ['TO', opts[:to]] if opts[:to]
       end
 
       # puts "Gathering #{(aliases[key] || key).inspect} messages for mailbox '#{name}'..."
       @gmail.in_mailbox(self) do
-        puts "search: #{search} ****************************************************************************************************"
-        return search
+        puts "query: #{query}"
+        return query
       end
     end
 
@@ -80,16 +81,15 @@ module GmailBase
       @messages ||= {}
     end
 
-private
 
     def prefetch
-      # {@gmail.uid_next}
-      @gmail.imap.fetch('1:100 (body[header.fields (subject)])').collect do |response| 
-        uid = response.attr['UID']
-        subject = response.attr['SUBJECT']
-        messages[uid] ||= Message.new(@gmail, self, uid, subject) 
+      @gmail.imap.examine(name)
+      @gmail.imap.fetch(1..@uid_next, ["UID", "ENVELOPE"]).each do |email|
+        uid = email.attr['UID']
+        envelope = email.attr["ENVELOPE"]
+        messages[uid] = Message.new(@gmail, self, uid, envelope) 
+        # puts "#{uid} : #{envelope.from[0].mailbox}@#{envelope.from[0].host}: \t#{envelope.subject}"
       end
-      
     end
 
   end

@@ -1,11 +1,11 @@
 module GmailBase
   class Message
 
-    def initialize(gmail, mailbox, uid, subject=nil)
+    def initialize(gmail, mailbox, uid, envelope=nil)
       @gmail = gmail
       @mailbox = mailbox
       @uid = uid
-      @subject = subject
+      @envelope = envelope
     end
 
     def inspect
@@ -87,39 +87,39 @@ module GmailBase
     # a new message only has a uid, so when listing an inbox full of subjects we don't want to have to download the full headers/body.
     # this lightens traffic size and serves as a caching mechanism for subjects
     def subject
-      if !@subject && !@message && !@message.subject
-        require 'mail'
-        request= '(body[header.fields (subject)])'
-        _body = @gmail.in_mailbox(@mailbox) { @gmail.imap.fetch(@uid, request)[0].attr[request] }
-        tmp = Mail.new(_body)
-        @subject = tmp.subject
-      elsif !@subject && @message && @message.subject
-        @subject = @message.subject
-      end
-      @subject
+      ensure_envelope
+      @envelope.subject
+    end
+
+    def from
+      ensure_envelope
+      @envelope.from[0]
+    end
+
+    def body
+      ensure_message
+      @message.body
     end
 
     private
 
+    def ensure_envelope
+      if !@envelope
+        require 'mail'
+        request= "ENVELOPE"
+        @envelope = @gmail.in_mailbox(@mailbox) { @gmail.imap.fetch(@uid, request)[0].attr[request] }
+      end
+    end
+
     # Parsed MIME message object
-    def message
+    def ensure_message
       if !@message
         require 'mail'
         request,part = 'RFC822','RFC822'
         request,part = 'BODY.PEEK[]','BODY[]' if @gmail.peek
-        _body = @gmail.in_mailbox(@mailbox) { @gmail.imap.uid_fetch(uid, request)[0].attr[part] }
-        @message = Mail.new(_body)
+        @message = @gmail.in_mailbox(@mailbox) { @gmail.imap.uid_fetch(uid, request)[0].attr[part] }
       end
-      @message
     end
 
-    # Delegate all other methods to the Mail message
-    def method_missing(*args, &block)
-      if block_given?
-        message.send(*args, &block)
-      else
-        message.send(*args)
-      end
-    end
   end
 end
