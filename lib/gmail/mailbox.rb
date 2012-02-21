@@ -23,6 +23,14 @@ module GmailBase
       name
     end
 
+    def all
+      @gmail.imap.fetch('1:100 FULL').collect do |response| ##{@gmail.uid_next}
+        uid = response.attr['UID']
+        body = response.attr['BODY']
+        messages[uid] ||= Message.new(@gmail, self, uid, body) 
+      end
+    end
+
     def uid_search(key_or_opts = :all, opts={})
       @gmail.imap.uid_search(search(key_or_opts, opts)).collect { |uid| messages[uid] ||= Message.new(@gmail, self, uid) }
     end

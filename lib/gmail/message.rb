@@ -1,9 +1,12 @@
 module GmailBase
   class Message
-    def initialize(gmail, mailbox, uid)
+    def initialize(gmail, mailbox, uid, body)
       @gmail = gmail
       @mailbox = mailbox
       @uid = uid
+      if body
+        @message = Mail.new(body)
+      end
     end
 
     def inspect
